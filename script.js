@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const elementsToAnimate = document.querySelectorAll('.fade-in-up, .fade-in-left, .fade-in-right');
     elementsToAnimate.forEach(el => observer.observe(el));
 
-    // 4. Form Submission Simulation
+    // 4. Form Submission (AJAX via FormSubmit)
     const contactForm = document.getElementById('contactForm');
     if (contactForm) {
         contactForm.addEventListener('submit', (e) => {
@@ -92,18 +92,36 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
             btn.disabled = true;
 
-            // Simulate API call
-            setTimeout(() => {
-                btn.innerHTML = '<i class="fa-solid fa-check"></i> Sent Successfully!';
-                btn.style.backgroundColor = '#25d366';
-                contactForm.reset();
+            const formData = new FormData(contactForm);
 
+            fetch("https://formsubmit.co/ajax/rajeshathul101@gmail.com", {
+                method: "POST",
+                headers: { 
+                    'Accept': 'application/json'
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    btn.innerHTML = '<i class="fa-solid fa-check"></i> Sent Successfully!';
+                    btn.style.backgroundColor = '#25d366';
+                    contactForm.reset();
+                } else {
+                    throw new Error("FormSubmit Error");
+                }
+            })
+            .catch(error => {
+                btn.innerHTML = '<i class="fa-solid fa-xmark"></i> Error Sending';
+                btn.style.backgroundColor = '#ff4444';
+            })
+            .finally(() => {
                 setTimeout(() => {
                     btn.innerHTML = originalText;
                     btn.disabled = false;
                     btn.style.backgroundColor = '';
-                }, 3000);
-            }, 1500);
+                }, 3500);
+            });
         });
     }
 
